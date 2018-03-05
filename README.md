@@ -31,18 +31,21 @@ return [
 ```php
 <?php
 /**
- * Trace中心的配置文件。
+ * Trace中心的配置文件。TCP和HTTP方式二选一，同时配置将优先使用TCP。
  *
- * host: 注册中心服务器地址
- * port: 注册中心服务器端口
+ * service: HTTP方式的采集地址
+ * host: TCP方式的采集服务器地址
+ * port: TCP方式的采集服务器端口
  * timeout: 连接超时时间，单位 秒，默认 30
  */
 return [
     'default' => [
-        'server' => 'http://xxxx.xxxx.xxxx/collector', // 或者 'tcp://127.0.0.1:9830'
+        'service' => 'http://xxxx.xxxx.xxxx/collector',
         'timeout' => 30,
     ],
 ];
 ```
 
 ## 使用
+
+trace默认在TraceMiddleware和HTTPClient中使用，无需单独使用。
