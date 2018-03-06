@@ -28,9 +28,9 @@ class Client
     const NL = "\r\n";
 
     /**
-     * @var bool
+     * @var null|resource
      */
-    private $handle = false;
+    private $handle = null;
 
     /**
      * @var string
@@ -48,11 +48,6 @@ class Client
     private $silent_fail;
 
     /**
-     * @var string
-     */
-    private $command = '';
-
-    /**
      * @var int
      */
     private $timeout = 30;
@@ -61,16 +56,6 @@ class Client
      * @var int
      */
     private $connect_timeout = 3;
-
-    /**
-     * @var string
-     */
-    private $last_used_command = '';
-
-    /**
-     * @var string
-     */
-    private $last_reply = '';
 
     /**
      * Client constructor.
@@ -142,31 +127,6 @@ class Client
     }
 
     /**
-     * Command wrap
-     *
-     * @return $this|bool|int
-     */
-    protected function cmd()
-    {
-        if (!$this->handle) {
-            return $this;
-        }
-
-        $args = func_get_args();
-        $command = [];
-        foreach ($args as $arg) {
-            if (strpos($arg, ' ') !== false) {
-                $arg = '"' . $arg . '"';
-            }
-            $command[] = $arg;
-        }
-
-        $this->command = implode(" ", $command);
-
-        return $this->send($this->command);
-    }
-
-    /**
      * Read response from server
      *
      * @param bool $multiLine
@@ -179,11 +139,9 @@ class Client
             throw new \RuntimeException('Connection not ready');
         }
 
-        $this->last_reply = '';
         $response = new \stdClass();
         $char = fgetc($this->handle);
         $status = fgets($this->handle, 4096);
-        $this->last_reply .= $char . $status;
 
         if ($char == self::OK) {
             $response->success = true;
@@ -201,7 +159,6 @@ class Client
         if ($multiLine) {
             $response->data = [];
             while ($data = fgets($this->handle, 4096)) {
-                $this->last_reply .= $data;
                 $data = trim($data);
                 if ($data == '.') {
                     break;
@@ -226,11 +183,33 @@ class Client
             throw new \RuntimeException("Connection not ready");
         }
 
-        $res = @fwrite($this->handle, $data);
-        if ($res === false) {
-            throw new \RuntimeException("Write to server failed");
+        if (!$this->noop()) {
+            $this->reconnect();
+        }
+
+        try {
+            $res = @fwrite($this->handle, $data . static::NL);
+            if ($res === false) {
+                throw new \RuntimeException("Write to server failed");
+            }
+        } catch (\Throwable $e) {
+            throw new \RuntimeException("Send data failed: " . $e->getMessage());
         }
 
         return $this;
+    }
+
+    public function noop()
+    {
+        try {
+            @fwrite($this->handle, 'noop' . static::NL);
+            $res = $this->recv();
+
+            return $res->success;
+        } catch (\Throwable $e) {
+            echo $e->getMessage();
+
+            return false;
+        }
     }
 }
