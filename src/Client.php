@@ -1,6 +1,6 @@
 <?php
 /**
- * 链路跟踪客户端协议实现
+ * 链路跟踪客户端TCP协议实现
  */
 
 namespace Uniondrug\Trace;
