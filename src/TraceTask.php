@@ -8,6 +8,12 @@ namespace Uniondrug\Trace;
 
 use Uniondrug\Server\Task;
 
+/**
+ * Class TraceTask
+ *
+ * @package Uniondrug\Trace
+ * @property \Uniondrug\Trace\TraceClient $traceClient
+ */
 class TraceTask extends Task\TaskHandler
 {
     public function handle($data = [])
