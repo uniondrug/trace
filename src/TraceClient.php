@@ -71,6 +71,8 @@ class TraceClient extends Injectable
      * 发送入口
      *
      * @param array $data
+     *
+     * @throws \Uniondrug\Packet\Exceptions\PacketException
      */
     public function send($data = [])
     {
