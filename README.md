@@ -31,16 +31,14 @@ return [
 ```php
 <?php
 /**
- * Trace中心的配置文件。TCP和HTTP方式二选一，同时配置将优先使用TCP。
+ * Trace中心的配置文件。
  *
  * service: HTTP方式的采集地址
- * host: TCP方式的采集服务器地址
- * port: TCP方式的采集服务器端口
  * timeout: 连接超时时间，单位 秒，默认 30
  */
 return [
     'default' => [
-        'service' => 'http://xxxx.xxxx.xxxx/collector',
+        'service' => 'http://ip:port',
         'timeout' => 30,
     ],
 ];
