@@ -22,6 +22,13 @@ class TraceClient extends Injectable
     protected $service = null;
 
     /**
+     * API path
+     *
+     * @var string
+     */
+    protected $path = '/collector';
+
+    /**
      * 投递超时
      *
      * @var int
@@ -81,7 +88,7 @@ class TraceClient extends Injectable
                 'timeout'  => $this->timeout,
                 'no_trace' => true, // 关键，本投递不跟踪
             ];
-            $client->post($this->service, $options);
+            $client->post($this->service . $this->path, $options);
         } catch (\Exception $e) {
             $this->di->getLogger('trace')->error(sprintf("[TraceClient] Send data to server failed: %s, data=%s", $e->getMessage(), json_encode($data)));
         }
