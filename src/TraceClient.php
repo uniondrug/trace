@@ -41,7 +41,7 @@ class TraceClient extends Injectable
     public function __construct()
     {
         if ($service = $this->config->path('trace.service')) {
-            $this->service = $service;
+            $this->service = rtrim($service, '/');
         }
         if ($timeout = $this->config->path('trace.timeout', 30)) {
             $this->timeout = $timeout;
@@ -57,9 +57,9 @@ class TraceClient extends Injectable
      */
     public function send($data = [])
     {
-        // Swoole 环境下，通过Task的方式异步发送
-        if (function_exists('app')) {
-            $this->taskDispatcher->dispatch(TraceTask::class, $data);
+        // Swoole 环境下: 普通的Worker进程才做异步发送，否则，同步发送
+        if (function_exists('app') && isset(swoole()->worker_pid) && !swoole()->taskworker) {
+            $this->taskDispatcher->dispatchByProcess(TraceTask::class, $data);
         } else {
             call_user_func_array([$this, 'post'], [$data]);
         }
