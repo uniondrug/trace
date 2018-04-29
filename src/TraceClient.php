@@ -58,7 +58,7 @@ class TraceClient extends Injectable
     public function send($data = [])
     {
         // Swoole 环境下: 普通的Worker进程才做异步发送，否则，同步发送
-        if (function_exists('app')) {
+        if ($this->di->has('server')) {
             if (isset(swoole()->worker_pid) && !swoole()->taskworker) {
                 $this->taskDispatcher->dispatch(TraceTask::class, $data);
             } else {
